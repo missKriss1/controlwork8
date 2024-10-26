@@ -11,7 +11,7 @@ interface Props {
 const initialFotmEdit ={
     author: '',
     text: '',
-    category: '',
+    category: 'star-wars',
     id:''
 }
 

@@ -11,7 +11,7 @@ interface Props {
 const initialStateForCategories ={
     author: '',
     text: '',
-    category: ''
+    category: 'star-wars'
 }
 
 const Add: React.FC <Props> = ({categories}) => {

@@ -23,7 +23,7 @@ const App = () => {
             </header>
             <Routes>
                 <Route path="/" element={<HomeQuote categories={categories} />} />
-                <Route path="/quotes/:category" element={<HomeQuote categories={categories} />} />
+                <Route path="/quotes/:categoryId" element={<HomeQuote categories={categories} />}/>
                 <Route path="/new-quote" element={<Add categories={categories} />} />
                 <Route path="/quotes/:quoteId/edit" element={<Edit categories={categories} />}>
 

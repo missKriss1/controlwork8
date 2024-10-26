@@ -4,6 +4,7 @@ import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import QuoteItem from "../../Componenets/QuoteItem/QuoteItem.tsx";
 import axiosApi from "../../../axiosApi.ts";
+import Spinner from "../../Componenets/Spinner/Spinner.tsx";
 
 interface Props {
     categories: ICategory[];
@@ -14,8 +15,10 @@ const HomeQuote: React.FC<Props> = ({ categories }) => {
     const navigate = useNavigate();
 
     const [quotes, setQuotes] = useState<IQuote[]>([]);
+    const [loading, setLoading] = useState(false);
 
     const fetchQuotes = useCallback(async () => {
+        setLoading(true);
         try {
             const response: { data: IQuoteAPI } = await axiosApi.get<IQuoteAPI>('/quotes.json');
             if (response.data) {
@@ -26,9 +29,11 @@ const HomeQuote: React.FC<Props> = ({ categories }) => {
                     }),
                 );
                 setQuotes(quotesApi);
+                setLoading(false);
             }
         } catch (e) {
             console.error(e);
+            setLoading(false);
         }
     }, []);
 
@@ -63,30 +68,36 @@ const HomeQuote: React.FC<Props> = ({ categories }) => {
 
     return (
         <div>
-            <div className="row">
-                <div className="col-5">
-                    <ul>
-                        <li className="text-start text-dark">
-                            <NavLink className="text-black text-decoration-none" to='/'>All</NavLink>
-                        </li>
-                    </ul>
-                    {categories.map(category => (
-                        <li className="text-start ms-3" key={category.id}>
-                            <NavLink className="text-black text-decoration-none" to={`/quotes/${category.id}`}>{category.category}</NavLink>
-                        </li>
-                    ))}
+            {loading ? (
+                <Spinner/>
+            ): (
+                <div className="row">
+                    <div className="col-5">
+                        <ul>
+                            <li className="text-start text-dark">
+                                <NavLink className="text-black text-decoration-none" to='/'>All</NavLink>
+                            </li>
+                        </ul>
+                        {categories.map(category => (
+                            <li className="text-start ms-3" key={category.id}>
+                                <NavLink className="text-black text-decoration-none"
+                                         to={`/quotes/${category.id}`}>{category.category}</NavLink>
+                            </li>
+                        ))}
+                    </div>
+                    <div className="col-5">
+                        <h1>{params.categoryId ? category() : "All"}</h1>
+                        {filteredQuotes.length > 0 ? (
+                            filteredQuotes.map((quote: IQuote) => (
+                                <QuoteItem quote={quote} key={quote.id} deleteQuote={deleteQuote}/>
+                            ))
+                        ) : (
+                            <h3>No quotes yet</h3>
+                        )}
+                    </div>
                 </div>
-                <div className="col-5">
-                    <h1>{params.categoryId ? category() : "All"}</h1>
-                    {filteredQuotes.length > 0 ? (
-                        filteredQuotes.map((quote: IQuote) => (
-                            <QuoteItem quote={quote} key={quote.id} deleteQuote={deleteQuote} />
-                        ))
-                    ) : (
-                        <h3>No quotes yet</h3>
-                    )}
-                </div>
-            </div>
+            )}
+
         </div>
     );
 };

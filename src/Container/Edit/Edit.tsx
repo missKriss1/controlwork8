@@ -3,6 +3,7 @@ import {useCallback, useEffect, useState} from "react";
 import {ICategory, IQuote} from "../../types";
 import {useNavigate, useParams} from "react-router-dom";
 import axiosApi from "../../../axiosApi.ts";
+import Spinner from "../../Componenets/Spinner/Spinner.tsx";
 
 interface Props {
     categories: ICategory[];
@@ -17,6 +18,7 @@ const initialFotmEdit ={
 
 const Edit: React.FC <Props> = ({categories}) => {
     const [quote, setQuote] = useState<IQuote>(initialFotmEdit);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const params = useParams<{quoteId: string}>();
 
@@ -43,14 +45,17 @@ const Edit: React.FC <Props> = ({categories}) => {
 
     const saveQuote = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setLoading(true);
         if(quote.text.trim() !== '' && quote.author.trim() !== '' && quote.category.trim() !== ''){
             try{
                 if(quote){
                     await axiosApi.put( `/quotes/${params.quoteId}.json`, {...quote});
                     navigate('/');
+                    setLoading(false);
                 }
             }catch (e){
                 console.error(e);
+                setLoading(false);
             }
         }else{
             alert('Fill in the fields')
@@ -63,41 +68,47 @@ const Edit: React.FC <Props> = ({categories}) => {
     }, [fetchOneQuote]);
     return (
         <div>
-            <h3 className="text-start mt-4 mb-4">Edit quote</h3>
-            <div className="w-50">
-                <form onSubmit={saveQuote}>
-                    <label className="form-label mt-3 ">Category</label>
-                    <select
-                        className="form-select"
-                        name="category"
-                        id="category"
-                        value={quote.category}
-                        onChange={onChange}
-                    >
-                        {categories.map((category) => (
-                            <option key={category.id} value={category.id}>
-                                {category.category}
-                            </option>
-                        ))}
-                    </select>
-                    <label className="form-label mt-3 mb-3">Author</label>
-                    <input
-                        className="form-control"
-                        type="text"
-                        name="author"
-                        value={quote.author}
-                        onChange={onChange}
-                    />
-                    <label className="form-label mt-3 mb-">Quote text</label>
-                    <textarea
-                        className="form-control"
-                        name="text"
-                        value={quote.text}
-                        onChange={onChange}
-                    />
-                    <button className="btn-dark mt-3" type="submit">Save</button>
-                </form>
-            </div>
+            {loading ?(
+                <Spinner/>
+            ):(
+                <>
+                    <h3 className="text-start mt-4 mb-4">Edit quote</h3>
+                    <div className="w-50">
+                        <form onSubmit={saveQuote}>
+                            <label className="form-label mt-3 ">Category</label>
+                            <select
+                                className="form-select"
+                                name="category"
+                                id="category"
+                                value={quote.category}
+                                onChange={onChange}
+                            >
+                                {categories.map((category) => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.category}
+                                    </option>
+                                ))}
+                            </select>
+                            <label className="form-label mt-3 mb-3">Author</label>
+                            <input
+                                className="form-control"
+                                type="text"
+                                name="author"
+                                value={quote.author}
+                                onChange={onChange}
+                            />
+                            <label className="form-label mt-3 mb-">Quote text</label>
+                            <textarea
+                                className="form-control"
+                                name="text"
+                                value={quote.text}
+                                onChange={onChange}
+                            />
+                            <button className="btn-dark mt-3" type="submit">Save</button>
+                        </form>
+                    </div>
+                </>
+            )}
         </div>
     );
 };

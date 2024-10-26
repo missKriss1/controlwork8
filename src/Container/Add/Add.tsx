@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {ICategory} from "../../types";
+import {IAddQuote, ICategory} from "../../types";
 import * as React from "react";
 import axiosApi from "../../../axiosApi.ts";
 
@@ -15,7 +15,7 @@ const initialStateForCategories ={
 }
 
 const Add: React.FC <Props> = ({categories}) => {
-    const [newQuote, setNewQuote] = useState(initialStateForCategories);
+    const [newQuote, setNewQuote] = useState<IAddQuote>(initialStateForCategories);
     const navigate = useNavigate();
 
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement |HTMLSelectElement>) =>{
@@ -37,14 +37,14 @@ const Add: React.FC <Props> = ({categories}) => {
             category: newQuote.category
         }
 
-        if(newQuote.author.trim() !== '' &&  newQuote.text.trim() !== ''){
+        if(newQuote.author.trim() !== '' &&  newQuote.text.trim() !== '' && newQuote.category.trim() !== ''){
             try{
-                await axiosApi.post('/quotes.json', quoteAdd);
+                await axiosApi.post('/quotes.json', newQuote);
             }catch (e){
                 console.error(e);
             }
             setNewQuote({...initialStateForCategories});
-            navigate('/');
+            navigate('/quotes/' + quoteAdd.category);
         }else{
             alert("Fill in the fields");
         }
@@ -54,21 +54,21 @@ const Add: React.FC <Props> = ({categories}) => {
         <div>
             <h3 className="text-start mt-4 mb-4">Submit new quote</h3>
             <div className="w-50">
-                <label className="form-label mt-3 ">Category</label>
-                <select
-                    className="form-select"
-                    name="category"
-                    id="category"
-                    value={newQuote.category}
-                    onChange={onChange}
-                >
-                    {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                            {category.category}
-                        </option>
-                    ))}
-                </select>
                 <form onSubmit={saveNewQuote}>
+                    <label className="form-label mt-3 ">Category</label>
+                    <select
+                        className="form-select"
+                        name="category"
+                        id="category"
+                        value={newQuote.category}
+                        onChange={onChange}
+                    >
+                        {categories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                                {category.category}
+                            </option>
+                        ))}
+                    </select>
                     <label className="form-label mt-3 mb-3">Author</label>
                     <input
                         className="form-control"
